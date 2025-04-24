@@ -31,7 +31,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * A factory that creates client, load balancer and client configuration instances. It
  * creates a Spring ApplicationContext per client name, and extracts the beans that it
  * needs from there.
- *
+ * name: 微服务名称
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -39,6 +39,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	static final String NAMESPACE = "ribbon";
 
+	// RibbonClientConfiguration默认配置类
+	// ribbon.client.name配置项
 	public SpringClientFactory() {
 		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name");
 	}
@@ -92,27 +94,24 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
 			Class<C> clazz, IClientConfig config) {
 		C result = null;
-
 		try {
+			// 尝试获取构造器
 			Constructor<C> constructor = clazz.getConstructor(IClientConfig.class);
 			result = constructor.newInstance(config);
 		}
-		catch (Throwable e) {
-			// Ignored
+		catch (Throwable ignore) {
 		}
-
 		if (result == null) {
+			// 创建bean对象
 			result = BeanUtils.instantiateClass(clazz);
-
+			// 设置IClientConfig
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);
 			}
-
 			if (context != null) {
 				context.getAutowireCapableBeanFactory().autowireBean(result);
 			}
 		}
-
 		return result;
 	}
 

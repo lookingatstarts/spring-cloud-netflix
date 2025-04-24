@@ -41,6 +41,7 @@ public class RibbonApplicationContextInitializer
 		this.clientNames = clientNames;
 	}
 
+	// 优先初始化clientName
 	protected void initialize() {
 		if (clientNames != null) {
 			for (String clientName : clientNames) {

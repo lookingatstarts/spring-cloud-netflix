@@ -50,6 +50,8 @@ import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 /**
+ * Ribbon自动配置类
+ *
  * Auto configuration for Ribbon (client side load balancing).
  *
  * @author Spencer Gibb
@@ -67,6 +69,9 @@ import org.springframework.web.client.RestTemplate;
 		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
 
+	/**
+	 * 配置类及其对应服务名，eg:hdl-trade-center
+	 */
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 

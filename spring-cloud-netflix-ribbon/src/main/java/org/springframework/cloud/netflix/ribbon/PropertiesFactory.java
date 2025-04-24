@@ -39,8 +39,7 @@ public class PropertiesFactory {
 
 	@Autowired
 	private Environment environment;
-
-	private Map<Class, String> classToProperty = new HashMap<>();
+	private final Map<Class<?>, String> classToProperty = new HashMap<>();
 
 	public PropertiesFactory() {
 		classToProperty.put(ILoadBalancer.class, "NFLoadBalancerClassName");
@@ -50,28 +49,33 @@ public class PropertiesFactory {
 		classToProperty.put(ServerListFilter.class, "NIWSServerListFilterClassName");
 	}
 
-	public boolean isSet(Class clazz, String name) {
+	public boolean isSet(Class<?> clazz, String name) {
 		return StringUtils.hasText(getClassName(clazz, name));
 	}
 
-	public String getClassName(Class clazz, String name) {
+	public String getClassName(Class<?> clazz, String name) {
 		if (this.classToProperty.containsKey(clazz)) {
 			String classNameProperty = this.classToProperty.get(clazz);
-			String className = environment
-					.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
-			return className;
+			// hdl-trade-center.ribbon.NFLoadBalancerClassName: xxx 配置方式
+			return environment.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
 		}
 		return null;
 	}
 
+
+	/**
+	 * @param clazz 组件类
+	 * @param config client配置
+	 * @param name 微服务名称
+	 */
 	@SuppressWarnings("unchecked")
 	public <C> C get(Class<C> clazz, IClientConfig config, String name) {
 		String className = getClassName(clazz, name);
 		if (StringUtils.hasText(className)) {
 			try {
+				// 创建对象
 				Class<?> toInstantiate = Class.forName(className);
-				return (C) SpringClientFactory.instantiateWithConfig(toInstantiate,
-						config);
+				return (C) SpringClientFactory.instantiateWithConfig(toInstantiate, config);
 			}
 			catch (ClassNotFoundException e) {
 				throw new IllegalArgumentException("Unknown class to load " + className

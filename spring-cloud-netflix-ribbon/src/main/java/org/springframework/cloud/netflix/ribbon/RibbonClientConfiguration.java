@@ -58,6 +58,9 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProp
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
 /**
+ * RibbonClient配置类，每个服务都可以自己独立的配置类
+ * 组件： IClientConfig IRule IPing ServerList
+ *
  * @author Dave Syer
  * @author Tim Ysewyn
  */
@@ -86,15 +89,18 @@ public class RibbonClientConfiguration {
 	 */
 	public static final boolean DEFAULT_GZIP_PAYLOAD = true;
 
+	/**
+	 * springClientFactory中配置了ribbon.client.name，值为服务名，eg:hdl-trade-center
+	 */
 	@RibbonClientName
 	private String name = "client";
-
-	// TODO: maybe re-instate autowired load balancers: identified by name they could be
-	// associated with ribbon clients
 
 	@Autowired
 	private PropertiesFactory propertiesFactory;
 
+	/**
+	 * 客户端配置文件
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {
@@ -109,6 +115,7 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public IRule ribbonRule(IClientConfig config) {
+		// 优选使用配置文件的
 		if (this.propertiesFactory.isSet(IRule.class, name)) {
 			return this.propertiesFactory.get(IRule.class, config, name);
 		}
